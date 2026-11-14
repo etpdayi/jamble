@@ -100,6 +100,13 @@ input[type=range]{padding:0}
 .cdt small{display:block;margin-top:4px;font:700 .85rem "Archivo",sans-serif;text-transform:none;letter-spacing:0}
 .cdb.hot{background:var(--coral);animation:hot .6s infinite alternate}
 @keyframes hot{to{transform:rotate(-1deg) scale(1.03)}}
+.mk{white-space:normal}
+.mk .w{display:inline-block;white-space:pre;margin:0 .45em}
+.rxr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+button.rx{margin:0;padding:8px 12px;font-size:.74rem;text-transform:none;letter-spacing:0;transform:none;box-shadow:3px 3px 0 var(--vio)}
+button.rx:hover:not(:disabled){transform:none;box-shadow:3px 3px 0 var(--vio)}
+button.rx.on{background:var(--lime);color:var(--bg);border-color:var(--bg)}
+button.rx b{margin-left:4px}
 #msg{color:var(--coral);min-height:1.4em;font-weight:900}
 @media (max-width:1100px){.g3{grid-template-columns:1fr}.g3 .pn{position:static;order:3}.g3 .cc{position:static;order:2}}
 @media (max-width:860px){.hm,.gm{grid-template-columns:1fr}.pn{position:static}.gm .pn{order:2}}
@@ -117,7 +124,7 @@ input[type=range]{padding:0}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 <script>window.Peer||document.write('<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"><\/script>')</script>
 <script>
-var sm=false,pw=null,pwa=null,pvb=null,vol=0.25,peer=null,isHost=false,conns={},hc=null,me="",code="",name="",V={},mySongs=[],RES=[],au=new Audio(),lastUrl="",tmi=null,nxt=null;
+var myRx=null,sm=false,pw=null,pwa=null,pvb=null,vol=0.25,peer=null,isHost=false,conns={},hc=null,me="",code="",name="",V={},mySongs=[],RES=[],au=new Audio(),lastUrl="",tmi=null,nxt=null;
 var S={players:[],phase:"lobby",order:[],idx:0,cfg:{gt:30,n:1},cur:null,plog:[],chat:[]};
 function $(i){var e=document.getElementById(i);if(e)return e;try{if(pw&&!pw.closed)return pw.document.getElementById(i)}catch(x){}return null}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -154,6 +161,8 @@ function mineHtml(){
 }
 function renderMine(){var e=$("myb");if(e)e.innerHTML=mineHtml()}
 function pickHtml(){return '<div id="myb">'+mineHtml()+'</div>'+picker()}
+function mkH(t){return String(t).split("   ").map(function(w){return '<span class="w">'+esc(w)+'</span>'}).join(" ")}
+function mkW(t){return String(t).trim().split(/\s+/).map(function(w){return '<span class="w">'+esc(w)+'</span>'}).join(" ")}
 function cdHtml(P){return P.cd>0?'<div class="cdb'+(P.cd<=5?' hot':'')+'"><span class="cdn">'+P.cd+'</span><span class="cdt">Saniye içinde başlıyor<small>Şarkı seçmeyenler lobiden atılacak!</small></span></div>':''}
 function pickStatus(P){
   if(P.cd>0)return "⏳ Oyun "+P.cd+" sn içinde başlıyor. Şarkı seçmeyenler lobiden atılacak!";
@@ -186,22 +195,23 @@ function openPriv(){
   priv();return true;
 }
 function sc(){var c=$("chat");if(c)c.scrollTop=c.scrollHeight}
-function ce(e){if(e.sep)return '<div class="wr" style="text-align:center;font-weight:900;text-transform:uppercase;letter-spacing:.1em;border-left-color:var(--lime)">— '+esc(e.sep)+' —</div>';if(e.info)return '<div class="wr" style="border-left-color:var(--coral);font-weight:800">'+esc(e.info)+'</div>';return e.ok?'<div class="wr ok"><b>✓ '+esc(e.who)+'</b> '+esc(e.what)+' bildi! (+'+e.pts+')</div>':'<div class="wr"><b>'+esc(e.who)+':</b> '+esc(e.g)+'</div>'}
+function rxHtml(P){var own=P.owner===me;return '<div class="rxr"><button class="g rx'+(myRx==="l"?' on':'')+'" data-a="rx" data-v="l" id="rxl"'+(own?' disabled':'')+'>🔥 Çok iyi şarkı lan <b id="rxln">'+(P.lk||0)+'</b></button><button class="g rx'+(myRx==="d"?' on':'')+'" data-a="rx" data-v="d" id="rxd"'+(own?' disabled':'')+'>💩 Yuuuh bu şarkı ne <b id="rxdn">'+(P.dl||0)+'</b></button></div>'}
+function ce(e){if(e.rx)return '<div class="wr" style="border-left-color:'+(e.rx==="l"?'var(--lime)':'var(--coral)')+'">'+(e.rx==="l"?'🔥 <b>'+esc(e.who)+'</b>: çok iyi şarkı lan!':'💩 <b>'+esc(e.who)+'</b>: yuuuh bu şarkı ne!')+'</div>';if(e.sep)return '<div class="wr" style="text-align:center;font-weight:900;text-transform:uppercase;letter-spacing:.1em;border-left-color:var(--lime)">— '+esc(e.sep)+' —</div>';if(e.info)return '<div class="wr" style="border-left-color:var(--coral);font-weight:800">'+esc(e.info)+'</div>';return e.ok?'<div class="wr ok"><b>✓ '+esc(e.who)+'</b> '+esc(e.what)+' bildi! (+'+e.pts+')</div>':'<div class="wr"><b>'+esc(e.who)+':</b> '+esc(e.g)+'</div>'}
 function inv(){return location.href.split("#")[0].split("?")[0]+"#"+code}
 function ini(n){return esc((String(n).trim()[0]||"?").toLocaleUpperCase("tr"))}
 function nameOf(id){var p=S.players.filter(function(x){return x.id===id})[0];return p?p.name:"?"}
 function pl(id){return S.players.filter(function(x){return x.id===id})[0]}
 
 /* ---------- iTunes ---------- */
-var jc=0;
+var jc=0,LAT=/^[\p{Script=Latin}\p{N}\p{P}\p{S}\p{Z}\p{M}]+$/u;
 function search(q,cb){
   var n="__it"+(++jc),s=document.createElement("script");
-  window[n]=function(d){delete window[n];s.remove();cb((d.results||[]).filter(function(r){return r.previewUrl}).map(function(r){return{id:r.trackId,title:r.trackName,artist:r.artistName,art:r.artworkUrl100,url:r.previewUrl}}))};
+  window[n]=function(d){delete window[n];s.remove();cb((d.results||[]).filter(function(r){return r.previewUrl&&LAT.test(String(r.trackName)+String(r.artistName))}).map(function(r){return{id:r.trackId,title:r.trackName,artist:r.artistName,art:r.artworkUrl100,url:r.previewUrl}}))};
   s.onerror=function(){s.remove();cb(null)};
   s.src="https://itunes.apple.com/search?media=music&entity=song&country=TR&limit=10&term="+encodeURIComponent(q)+"&callback="+n;
   document.head.appendChild(s);
 }
-function picker(){return '<input id="q" placeholder="Şarkı veya sanatçı ara" autocomplete="off"><button data-a="srch">Ara</button><div id="res"></div>'}
+function picker(){return '<input id="q" placeholder="Şarkı veya sanatçı ara" autocomplete="off"><button data-a="srch">Ara</button><p class="sub" style="margin:0 0 10px">Sadece Latin harfli (Türkçe, İngilizce vb.) şarkılar listelenir.</p><div id="res"></div>'}
 function playUrl(u){try{au.src=u;au.currentTime=0;var p=au.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}
 
 /* ---------- ağ ---------- */
@@ -247,7 +257,7 @@ function join(){
 function pub(){
   var c=S.cur,g=S.phase==="guess"&&c;
   return{players:S.players.map(function(p){return{id:p.id,name:p.name,score:p.score,ok:p.songs.length>=(S.cfg.n||1),c:p.songs.length}}),ph:S.phase,round:S.idx+1,total:S.order.length,cfg:S.cfg,
-    owner:c?c.owner:null,t:c?c.t:[],a:c?c.a:[],chat:S.chat.slice(),plog:S.plog||[],allp:S.phase==="pick"&&allPicked(),cd:S.cdv||0,note:S.note||"",mt:g?mk(c.song.title,c.hs.t):"",ma:g?mk(c.song.artist,c.hs.a):"",url:g?c.song.url:null,n:c?c.g.length:0};
+    owner:c?c.owner:null,t:c?c.t:[],a:c?c.a:[],chat:S.chat.slice(),plog:S.plog||[],lk:c?cnt(c,"l"):0,dl:c?cnt(c,"d"):0,allp:S.phase==="pick"&&allPicked(),cd:S.cdv||0,note:S.note||"",mt:g?mk(c.song.title,c.hs.t):"",ma:g?mk(c.song.artist,c.hs.a):"",url:g?c.song.url:null,n:c?c.g.length:0};
 }
 function bc(m){m.p=pub();for(var k in conns)try{conns[k].send(m)}catch(e){}cmsg(m)}
 function tohost(m){if(isHost)hmsg(me,m);else hc.send(m)}
@@ -260,12 +270,14 @@ function begin(){
   var o=[];S.players.forEach(function(p){p.songs.forEach(function(_,k){o.push({o:p.id,k:k})})});
   if(!o.length){S.note="Hiç şarkı seçilmedi.";bc({t:"pk"});return}
   for(var i=o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=o[i];o[i]=o[j];o[j]=t}
+  o.sort(function(a,b){return a.k-b.k});
   S.order=o;S.idx=0;nextSong();
 }
 function kick(id,why,quiet){
   var c=conns[id];if(c){try{c.send({t:"kicked",why:why})}catch(e){}setTimeout(function(){try{c.close()}catch(e){}},400)}
   if(quiet){delete conns[id];var i=S.players.findIndex(function(p){return p.id===id});if(i>=0)S.players.splice(i,1)}else drop(id);
 }
+function cnt(c,v){return Object.keys(c.rx||{}).filter(function(k){return c.rx[k]===v}).length}
 function lev(a,b){var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++)d[i]=[i];for(j=1;j<=n;j++)d[0][j]=j;for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
 function near(a,t){
   if(!a||!t)return false;
@@ -277,14 +289,15 @@ function closeHint(from,text,c){
   var a=nz(text),t=nz(c.song.title),r=nz(c.song.artist);
   var ct=c.t.indexOf(from)<0&&near(a,t);
   var ca=c.a.indexOf(from)<0&&(near(a,r)||r.split(/ and | feat | ft | ve | x /).some(function(x){x=x.trim();return x.length>=3&&near(a,x)}));
-  if(ct||ca)setTimeout(function(){sendTo(from,{t:"close",what:ct&&ca?"şarkı adına ve sanatçıya":ct?"şarkı adına":"sanatçıya"})},60);
+  if(ct||ca){sendTo(from,{t:"close",who:nameOf(from),g:text,what:ct&&ca?"şarkı adına ve sanatçıya":ct?"şarkı adına":"sanatçıya"});return true}
+  return false;
 }
 function nextSong(){
   clearTimeout(S.tm);(S.ht||[]).forEach(clearTimeout);S.ht=[];
   if(S.idx>=S.order.length){S.phase="end";bc({t:"end"});return}
   var en=S.order[S.idx],o=en.o,ow=pl(o);
   if(!ow||!ow.songs[en.k]){S.idx++;nextSong();return}
-  S.cur={owner:o,g:S.players.filter(function(p){return p.id!==o}).map(function(p){return p.id}),t:[],a:[],pts:{},op:0,chat:[],hs:{t:[],a:[]},hk:0,song:ow.songs[en.k]};
+  S.cur={owner:o,g:S.players.filter(function(p){return p.id!==o}).map(function(p){return p.id}),t:[],a:[],pts:{},op:0,chat:[],hs:{t:[],a:[]},hk:0,rx:{},song:ow.songs[en.k]};
   S.phase="guess";S.chat.push({sep:"Şarkı "+(S.idx+1)+"/"+S.order.length});
   S.tm=setTimeout(function(){if(S.phase==="guess")reveal()},S.cfg.gt*1000);
   S.ht=[25,20,15,10].filter(function(r){return r<S.cfg.gt}).map(function(r){return setTimeout(hint,(S.cfg.gt-r)*1000)});
@@ -298,7 +311,7 @@ function onGuess(from,text){
   var th=titleHit(text,c.song),ah=artistHit(text,c.song),got=[],pts=0,e;
   if(th&&c.t.indexOf(from)<0){pts+=Math.max(1,5-c.t.length);c.t.push(from);got.push("şarkı adını");c.op++;add(c.owner,1)}
   if(ah&&c.a.indexOf(from)<0){pts+=Math.max(1,3-c.a.length);c.a.push(from);got.push("sanatçıyı");c.op++;add(c.owner,1)}
-  if(!th&&!ah){e={who:nameOf(from),g:text};closeHint(from,text,c)}
+  if(!th&&!ah){if(closeHint(from,text,c))return;e={who:nameOf(from),g:text}}
   else if(!got.length)return;
   else{add(from,pts);c.pts[from]=(c.pts[from]||0)+pts;e={who:nameOf(from),ok:1,what:got.join(" ve "),pts:pts,id:from,done:isDone(from)}}
   S.chat.push(e);bc({t:"chat",e:e});
@@ -308,7 +321,7 @@ function onGuess(from,text){
 function reveal(){
   clearTimeout(S.tm);(S.ht||[]).forEach(clearTimeout);S.phase="reveal";var c=S.cur,s=c.song;
   S.chat.push({info:"Cevap: "+cl(s.title)+" – "+s.artist+" ("+nameOf(c.owner)+" seçti)"});
-  bc({t:"reveal",song:{title:s.title,artist:s.artist,art:s.art},res:Object.keys(c.pts).map(function(id){return{name:nameOf(id),pts:c.pts[id]}}),op:c.op,own:nameOf(c.owner)});
+  bc({t:"reveal",song:{title:s.title,artist:s.artist,art:s.art},res:Object.keys(c.pts).map(function(id){return{name:nameOf(id),pts:c.pts[id]}}),op:c.op,lk:cnt(c,"l"),dl:cnt(c,"d"),own:nameOf(c.owner)});
 }
 function hmsg(from,d,c){
   if(d.t==="hello"){
@@ -322,6 +335,11 @@ function hmsg(from,d,c){
   }else if(d.t==="unpick"&&S.phase==="pick"&&pl(from)){
     var q2=pl(from),was=q2.songs.length>=(S.cfg.n||1);
     if(q2.songs[d.i]){q2.songs.splice(d.i,1);if(was){var k=S.plog.indexOf(q2.name);if(k>=0)S.plog.splice(k,1)}bc({t:"pk"})}
+  }else if(d.t==="react"&&S.phase==="guess"&&S.cur&&from!==S.cur.owner&&(d.v==="l"||d.v==="d")&&pl(from)){
+    var c2=S.cur;
+    if(c2.rx[from]===d.v)delete c2.rx[from];
+    else{c2.rx[from]=d.v;var e2={rx:d.v,who:nameOf(from)};S.chat.push(e2);bc({t:"chat",e:e2})}
+    bc({t:"rx"});
   }else if(d.t==="guess"){onGuess(from,d.text)}
 }
 function drop(id){
@@ -367,18 +385,19 @@ function cmsg(m){
   }
   if(m.t==="kicked"){var why=m.why;doLeave();msg(why||"Odadan çıkarıldın.");return}
   if(m.t==="close"){
-    if(V.t==="turn"){var cc=$("chat");if(cc){cc.insertAdjacentHTML("beforeend",'<div class="wr" style="border-left-color:var(--coral);font-style:italic">🔥 Yaklaştın! ('+esc(m.what)+' yakın)</div>');cc.scrollTop=cc.scrollHeight}}
+    if(V.t==="turn"){var cc=$("chat");if(cc){cc.insertAdjacentHTML("beforeend",'<div class="wr"><b>'+esc(m.who)+':</b> '+esc(m.g)+'</div><div class="wr" style="border-left-color:var(--coral);font-style:italic">🔥 Yaklaştın! ('+esc(m.what)+' yakın)</div>');cc.scrollTop=cc.scrollHeight}}
     return;
   }
+  if(m.t==="rx"){var r1=$("rxln"),r2=$("rxdn");if(r1)r1.textContent=m.p.lk;if(r2)r2.textContent=m.p.dl;return}
   if(m.t==="hint"){
     if(V.t==="turn"){V.p.mt=m.mt;V.p.ma=m.ma}
-    if($("mt")&&$("mt").className!=="mk ok")$("mt").textContent=m.mt;
-    if($("ma")&&$("ma").className!=="mk ok")$("ma").textContent=m.ma;
+    if($("mt")&&$("mt").className!=="mk ok")$("mt").innerHTML=mkH(m.mt);
+    if($("ma")&&$("ma").className!=="mk ok")$("ma").innerHTML=mkH(m.ma);
     return;
   }
   if(m.t==="me"){
-    if(m.title&&$("mt")){$("mt").textContent=m.title;$("mt").className="mk ok"}
-    if(m.artist&&$("ma")){$("ma").textContent=m.artist;$("ma").className="mk ok"}
+    if(m.title&&$("mt")){$("mt").innerHTML=mkW(m.title);$("mt").className="mk ok"}
+    if(m.artist&&$("ma")){$("ma").innerHTML=mkW(m.artist);$("ma").className="mk ok"}
     return;
   }
   if(m.t==="chat"){
@@ -403,15 +422,15 @@ function cmsg(m){
     var hl=pickStatus(P);
     ui(shell(P,'<div id="cdb">'+cdHtml(P)+'</div>'+(sm?'<div class="card"><h2>Şarkı seçimi</h2><p class="sub" style="margin:0">🔒 Yayıncı modu açık: şarkını ve aramalarını yayıncı penceresinden yap, ana ekranda görünmez.</p></div>':'<div class="card">'+pickHtml()+'</div>')+'<div class="card"><p class="eb">ODA</p><div id="plog">'+plogH(P)+'</div>'+(isHost?'<button data-a="begin" id="sb"'+(P.players.length<2||P.cd>0?' disabled':'')+'>Turu Başlat</button> ':'')+'<span class="sub" id="sh">'+hl+'</span></div>'));
   }else if(m.t==="turn"){
-    var own=P.owner===me;
+    var own=P.owner===me;myRx=null;
     if(P.url!==lastUrl){lastUrl=P.url;au.volume=vol;playUrl(P.url)}
     ui(shell3(P,hd+'<div class="card"><h2>'+esc(P.players.filter(function(p){return p.id===P.owner})[0].name)+' şarkısı çalıyor</h2><div class="eq">'+new Array(21).join('<i></i>')+'</div><p style="margin:8px 0 0"><span class="chip">⏱ Kalan süre: <b id="tmr"></b></span></p></div>'+
-      '<div class="card" style="text-align:center"><p class="eb">ŞARKI ADI</p><div class="mk" id="mt">'+esc(P.mt)+'</div><p class="eb">SANATÇI</p><div class="mk" id="ma">'+esc(P.ma)+'</div><p class="sub" style="margin:0">Son 25 saniyeden itibaren her 5 saniyede bir yeni bir harf açılır.</p></div>',
-      '<h2>Tahminler</h2><div id="chat">'+P.chat.map(ce).join("")+'</div>'+'<div id="gb">'+gbHtml(P)+'</div>'));
+      '<div class="card" style="text-align:center"><p class="eb">ŞARKI ADI</p><div class="mk" id="mt">'+mkH(P.mt)+'</div><p class="eb">SANATÇI</p><div class="mk" id="ma">'+mkH(P.ma)+'</div><p class="sub" style="margin:0">Son 25 saniyeden itibaren her 5 saniyede bir yeni bir harf açılır.</p></div>',
+      '<h2>Tahminler</h2>'+rxHtml(P)+'<div id="chat">'+P.chat.map(ce).join("")+'</div>'+'<div id="gb">'+gbHtml(P)+'</div>'));
     startTmr(P.cfg.gt);sc();
   }else if(m.t==="reveal"){
     var last=P.round>=P.total;
-    ui(shell3(P,hd+'<div class="card"><p class="eb">ŞARKI AÇIKLANDI</p><img class="big" src="'+esc(m.song.art.replace("100x100","300x300"))+'" alt=""><h2 style="margin-top:10px">'+esc(m.song.title)+'</h2><p>'+esc(m.song.artist)+' · '+esc(m.own)+' seçti</p><p>'+(m.res.length?m.res.map(function(r){return '<span class="chip">✓ '+esc(r.name)+' +'+r.pts+'</span> '}).join("")+'<span class="chip">'+esc(m.own)+' +'+m.op+'</span>':'<span class="chip">Kimse bilemedi</span>')+'</p></div>'+
+    ui(shell3(P,hd+'<div class="card"><p class="eb">ŞARKI AÇIKLANDI</p><img class="big" src="'+esc(m.song.art.replace("100x100","300x300"))+'" alt=""><h2 style="margin-top:10px">'+esc(m.song.title)+'</h2><p>'+esc(m.song.artist)+' · '+esc(m.own)+' seçti</p><p>'+(m.res.length?m.res.map(function(r){return '<span class="chip">✓ '+esc(r.name)+' +'+r.pts+'</span> '}).join("")+'<span class="chip">'+esc(m.own)+' +'+m.op+'</span>':'<span class="chip">Kimse bilemedi</span>')+'</p><p><span class="chip">🔥 '+m.lk+'</span> <span class="chip">💩 '+m.dl+'</span></p></div>'+
       '<div class="card"><p class="sub" id="cd" style="margin:0 0 6px"></p>'+(isHost?'<button data-a="next">'+(last?'Sonucu Gör':'Sonraki Şarkı')+'</button>':'')+'</div>',
       '<h2>Sohbet</h2><div id="chat">'+P.chat.map(ce).join("")+'</div>'));
     sc();if(isHost){var n=9;(function c(){if(!$("cd"))return;if(n<=0){A.next();return}$("cd").textContent=(last?"Final":"Sonraki şarkı")+" "+n+" sn içinde…";n--;nxt=setTimeout(c,1000)})()}
@@ -441,10 +460,17 @@ function doLeave(){
   home("host");
 }
 var A={
+  rx:function(b){var v=b.dataset.v;if(V.t!=="turn")return;myRx=(myRx===v?null:v);var l=$("rxl"),d=$("rxd");if(l)l.classList.toggle("on",myRx==="l");if(d)d.classList.toggle("on",myRx==="d");tohost({t:"react",v:v})},
   askyes:function(){var f=askCb;askCb=null;var o=document.getElementById("ask");if(o)o.remove();if(f)f()},
   askno:function(){askCb=null;var o=document.getElementById("ask");if(o)o.remove()},
   sm:function(){openPriv()},
-  pm:function(b){var s=mySongs[+b.dataset.i];if(s)playA(pa_(),s.url)},
+  pm:function(b){
+    var s=mySongs[+b.dataset.i];if(!s)return;var a=pa_();
+    if(pvb===b&&!a.paused){a.pause();b.textContent="▶";pvb=null;return}
+    if(pvb&&pvb!==b)pvb.textContent="▶";
+    pvb=b;b.textContent="⏸";playA(a,s.url);
+    a.onended=function(){if(pvb){pvb.textContent="▶";pvb=null}};
+  },
   pv:function(b){
     var s=RES[+b.dataset.i];if(!s)return;var a=pa_();
     if(pvb&&pvb!==b)pvb.textContent="▶";
@@ -484,7 +510,7 @@ var A={
     mySongs.push(s);tohost({t:"pick",song:s});renderMine();
     if($("res"))$("res").innerHTML="";
   },
-  unpk:function(b){var i=+b.dataset.i;if(!mySongs[i])return;mySongs.splice(i,1);tohost({t:"unpick",i:i});renderMine()},
+  unpk:function(b){var i=+b.dataset.i;if(!mySongs[i])return;mySongs.splice(i,1);pa_().pause();pvb=null;tohost({t:"unpick",i:i});renderMine()},
   kick:function(b){var id=b.dataset.id;if(!isHost||!pl(id))return;ask('<span style="color:var(--lime)">'+esc(nameOf(id))+'</span> odadan atılsın mı?',function(){if(pl(id))kick(id,"Kurucu seni odadan çıkardı.")},"Evet, at")},
   begin:function(){
     if(S.phase!=="pick"||S.cdv)return;
