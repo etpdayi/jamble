@@ -338,7 +338,7 @@ function hmsg(from,d,c){
   }else if(d.t==="react"&&S.phase==="guess"&&S.cur&&from!==S.cur.owner&&(d.v==="l"||d.v==="d")&&pl(from)){
     var c2=S.cur;
     if(c2.rx[from]===d.v)delete c2.rx[from];
-    else{c2.rx[from]=d.v;var e2={rx:d.v,who:nameOf(from)};S.chat.push(e2);bc({t:"chat",e:e2})}
+    else c2.rx[from]=d.v;
     bc({t:"rx"});
   }else if(d.t==="guess"){onGuess(from,d.text)}
 }
