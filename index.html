@@ -102,8 +102,8 @@ input[type=range]{padding:0}
 @keyframes hot{to{transform:rotate(-1deg) scale(1.03)}}
 .mk{white-space:normal}
 .mk .w{display:inline-block;white-space:pre;margin:0 .45em}
-.rxr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-button.rx{margin:0;padding:8px 12px;font-size:.74rem;text-transform:none;letter-spacing:0;transform:none;box-shadow:3px 3px 0 var(--vio)}
+.rxr{display:flex;gap:12px;flex-wrap:wrap}
+button.rx{margin:0;padding:12px 18px;font-size:.9rem;text-transform:none;letter-spacing:0;transform:none;box-shadow:3px 3px 0 var(--vio)}
 button.rx:hover:not(:disabled){transform:none;box-shadow:3px 3px 0 var(--vio)}
 button.rx.on{background:var(--lime);color:var(--bg);border-color:var(--bg)}
 button.rx b{margin-left:4px}
@@ -195,8 +195,8 @@ function openPriv(){
   priv();return true;
 }
 function sc(){var c=$("chat");if(c)c.scrollTop=c.scrollHeight}
-function rxHtml(P){var own=P.owner===me;return '<div class="rxr"><button class="g rx'+(myRx==="l"?' on':'')+'" data-a="rx" data-v="l" id="rxl"'+(own?' disabled':'')+'>🔥 Çok iyi şarkı lan <b id="rxln">'+(P.lk||0)+'</b></button><button class="g rx'+(myRx==="d"?' on':'')+'" data-a="rx" data-v="d" id="rxd"'+(own?' disabled':'')+'>💩 Yuuuh bu şarkı ne <b id="rxdn">'+(P.dl||0)+'</b></button></div>'}
-function ce(e){if(e.rx)return '<div class="wr" style="border-left-color:'+(e.rx==="l"?'var(--lime)':'var(--coral)')+'">'+(e.rx==="l"?'🔥 <b>'+esc(e.who)+'</b>: çok iyi şarkı lan!':'💩 <b>'+esc(e.who)+'</b>: yuuuh bu şarkı ne!')+'</div>';if(e.sep)return '<div class="wr" style="text-align:center;font-weight:900;text-transform:uppercase;letter-spacing:.1em;border-left-color:var(--lime)">— '+esc(e.sep)+' —</div>';if(e.info)return '<div class="wr" style="border-left-color:var(--coral);font-weight:800">'+esc(e.info)+'</div>';return e.ok?'<div class="wr ok"><b>✓ '+esc(e.who)+'</b> '+esc(e.what)+' bildi! (+'+e.pts+')</div>':'<div class="wr"><b>'+esc(e.who)+':</b> '+esc(e.g)+'</div>'}
+function rxHtml(P){var own=P.owner===me;return '<div class="rxr"><button class="g rx'+(myRx==="l"?' on':'')+'" data-a="rx" data-v="l" id="rxl"'+(own?' disabled':'')+'>Çok iyi şarkı lan <b id="rxln">'+(P.lk||0)+'</b></button><button class="g rx'+(myRx==="d"?' on':'')+'" data-a="rx" data-v="d" id="rxd"'+(own?' disabled':'')+'>Yuuuuh bu şarkı ne lan <b id="rxdn">'+(P.dl||0)+'</b></button></div>'}
+function ce(e){if(e.rx)return '<div class="wr" style="border-left-color:'+(e.rx==="l"?'var(--lime)':'var(--coral)')+'">'+(e.rx==="l"?'<b>'+esc(e.who)+'</b>: çok iyi şarkı lan!':'<b>'+esc(e.who)+'</b>: yuuuuh bu şarkı ne lan!')+'</div>';if(e.sep)return '<div class="wr" style="text-align:center;font-weight:900;text-transform:uppercase;letter-spacing:.1em;border-left-color:var(--lime)">— '+esc(e.sep)+' —</div>';if(e.info)return '<div class="wr" style="border-left-color:var(--coral);font-weight:800">'+esc(e.info)+'</div>';return e.ok?'<div class="wr ok"><b>✓ '+esc(e.who)+'</b> '+esc(e.what)+' bildi! (+'+e.pts+')</div>':'<div class="wr"><b>'+esc(e.who)+':</b> '+esc(e.g)+'</div>'}
 function inv(){return location.href.split("#")[0].split("?")[0]+"#"+code}
 function ini(n){return esc((String(n).trim()[0]||"?").toLocaleUpperCase("tr"))}
 function nameOf(id){var p=S.players.filter(function(x){return x.id===id})[0];return p?p.name:"?"}
@@ -425,12 +425,12 @@ function cmsg(m){
     var own=P.owner===me;myRx=null;
     if(P.url!==lastUrl){lastUrl=P.url;au.volume=vol;playUrl(P.url)}
     ui(shell3(P,hd+'<div class="card"><h2>'+esc(P.players.filter(function(p){return p.id===P.owner})[0].name)+' şarkısı çalıyor</h2><div class="eq">'+new Array(21).join('<i></i>')+'</div><p style="margin:8px 0 0"><span class="chip">⏱ Kalan süre: <b id="tmr"></b></span></p></div>'+
-      '<div class="card" style="text-align:center"><p class="eb">ŞARKI ADI</p><div class="mk" id="mt">'+mkH(P.mt)+'</div><p class="eb">SANATÇI</p><div class="mk" id="ma">'+mkH(P.ma)+'</div><p class="sub" style="margin:0">Son 25 saniyeden itibaren her 5 saniyede bir yeni bir harf açılır.</p></div>',
-      '<h2>Tahminler</h2>'+rxHtml(P)+'<div id="chat">'+P.chat.map(ce).join("")+'</div>'+'<div id="gb">'+gbHtml(P)+'</div>'));
+      '<div class="card" style="text-align:center"><p class="eb">ŞARKI ADI</p><div class="mk" id="mt">'+mkH(P.mt)+'</div><p class="eb">SANATÇI</p><div class="mk" id="ma">'+mkH(P.ma)+'</div><p class="sub" style="margin:0">Son 25 saniyeden itibaren her 5 saniyede bir yeni bir harf açılır.</p></div><div class="card">'+rxHtml(P)+'</div>',
+      '<h2>Tahminler</h2><div id="chat">'+P.chat.map(ce).join("")+'</div>'+'<div id="gb">'+gbHtml(P)+'</div>'));
     startTmr(P.cfg.gt);sc();
   }else if(m.t==="reveal"){
     var last=P.round>=P.total;
-    ui(shell3(P,hd+'<div class="card"><p class="eb">ŞARKI AÇIKLANDI</p><img class="big" src="'+esc(m.song.art.replace("100x100","300x300"))+'" alt=""><h2 style="margin-top:10px">'+esc(m.song.title)+'</h2><p>'+esc(m.song.artist)+' · '+esc(m.own)+' seçti</p><p>'+(m.res.length?m.res.map(function(r){return '<span class="chip">✓ '+esc(r.name)+' +'+r.pts+'</span> '}).join("")+'<span class="chip">'+esc(m.own)+' +'+m.op+'</span>':'<span class="chip">Kimse bilemedi</span>')+'</p><p><span class="chip">🔥 '+m.lk+'</span> <span class="chip">💩 '+m.dl+'</span></p></div>'+
+    ui(shell3(P,hd+'<div class="card"><p class="eb">ŞARKI AÇIKLANDI</p><img class="big" src="'+esc(m.song.art.replace("100x100","300x300"))+'" alt=""><h2 style="margin-top:10px">'+esc(m.song.title)+'</h2><p>'+esc(m.song.artist)+' · '+esc(m.own)+' seçti</p><p>'+(m.res.length?m.res.map(function(r){return '<span class="chip">✓ '+esc(r.name)+' +'+r.pts+'</span> '}).join("")+'<span class="chip">'+esc(m.own)+' +'+m.op+'</span>':'<span class="chip">Kimse bilemedi</span>')+'</p><p><span class="chip">Çok iyi şarkı lan: '+m.lk+'</span> <span class="chip">Yuuuuh bu şarkı ne lan: '+m.dl+'</span></p></div>'+
       '<div class="card"><p class="sub" id="cd" style="margin:0 0 6px"></p>'+(isHost?'<button data-a="next">'+(last?'Sonucu Gör':'Sonraki Şarkı')+'</button>':'')+'</div>',
       '<h2>Sohbet</h2><div id="chat">'+P.chat.map(ce).join("")+'</div>'));
     sc();if(isHost){var n=9;(function c(){if(!$("cd"))return;if(n<=0){A.next();return}$("cd").textContent=(last?"Final":"Sonraki şarkı")+" "+n+" sn içinde…";n--;nxt=setTimeout(c,1000)})()}
